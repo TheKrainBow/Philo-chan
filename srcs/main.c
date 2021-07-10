@@ -6,7 +6,7 @@
 /*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/02 21:01:23 by magostin          #+#    #+#             */
-/*   Updated: 2021/07/10 06:53:55 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/07/10 19:10:22 by mdelwaul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,149 +35,87 @@ int	ft_arg_error(int ac, char **av)
 	return (0);
 }
 
-void	ft_fill_data(t_data **data, int ac, char **av)
-{
-	int	i;
-
-	(*data)->n_philo = ft_atoi(av[1]);
-	(*data)->t_die = ft_atoi(av[2]);
-	(*data)->t_eat = ft_atoi(av[3]);
-	(*data)->t_sleep = ft_atoi(av[4]);
-	(*data)->forks = malloc(sizeof(pthread_mutex_t) * (*data)->n_philo);
-	i = -1;
-	while (++i < (*data)->n_philo)
-		pthread_mutex_init(&((*data)->forks[i]), NULL);
-	pthread_mutex_init(&((*data)->speak), NULL);
-	if (ac == 6)
-		(*data)->max_eat = ft_atoi(av[5]);
-	else
-		(*data)->max_eat = -1;
-	printf("We have %d philo that die in %dms, take %dms to eat and %dms to sleep\n", (*data)->n_philo, (*data)->t_die, (*data)->t_eat, (*data)->t_sleep);
-}
-
-void	ft_free_data(t_data *data, t_philo **philo)
-{
-	int		i;
-
-	i = -1;
-	while (++i < data->n_philo)
-	{
-		pthread_mutex_destroy(&(philo[i]->mut_alive));
-		free(philo[i]);
-	}
-	free(philo);
-	i = -1;
-	while (++i < data->n_philo)
-		pthread_mutex_destroy(&(data->forks[i]));
-	pthread_mutex_destroy(&(data->speak));
-	free(data);
-}
-
-void	ft_talk(t_philo *philo, char *str)
-{
-	struct timeval	time;
-
-	gettimeofday(&(time), NULL);
-	pthread_mutex_lock(&(philo->data->speak));
-	printf("%ld.%ld %d %s\n", time.tv_sec - philo->data->starting_time.tv_sec, time.tv_usec - philo->data->starting_time.tv_usec, philo->id, str);
-	pthread_mutex_unlock(&(philo->data->speak));
-}
-
-void	ft_eat(t_philo *philo)
-{
-	if (philo->id % 2)
-	{
-		pthread_mutex_lock(&(philo->data->forks[philo->id]));
-		ft_talk(philo, "has taken a fork");
-		pthread_mutex_lock(&(philo->data->forks[philo->prev]));
-		ft_talk(philo, "has taken a fork");
-	}
-	else
-	{
-		pthread_mutex_lock(&(philo->data->forks[philo->prev]));
-		ft_talk(philo, "has taken a fork");
-		pthread_mutex_lock(&(philo->data->forks[philo->id]));
-		ft_talk(philo, "has taken a fork");
-	}
-	ft_talk(philo, "is eating");
-	usleep(1000 * philo->data->t_eat);
-	pthread_mutex_unlock(&(philo->data->forks[philo->prev]));
-	pthread_mutex_unlock(&(philo->data->forks[philo->id]));
-	ft_talk(philo, "is sleeping");
-	usleep(1000 * philo->data->t_sleep);
-}
-
 void	*philochan(void *p)
 {
 	t_philo *philo;
 
 	philo = (t_philo *)p;
-	ft_talk(philo, "is thinking");
-	ft_eat(philo);
-	pthread_mutex_lock(&(philo->mut_alive));
-	philo->alive = 0;
-	pthread_mutex_unlock(&(philo->mut_alive));
+	while (1)
+	{
+		if (!ft_task(philo, TAKE_FORK))
+			break ;
+		if (!ft_task(philo, EAT))
+		{
+			ft_task(philo, LEAVE_FORK);
+			break ;
+		}
+		if (!ft_task(philo, LEAVE_FORK))
+			break ;
+		if (!ft_task(philo, SLEEP))
+			break ;
+		if (!ft_task(philo, THINK))
+			break ;
+	}
 	ft_talk(philo, "died");
 	return (NULL);
 }
 
-void	ft_create_philo(t_philo ***philo, t_data *data)
+void	ft_start_philo(t_data *data)
 {
-	int		i;
+	int	i;
+	struct timeval	time;
 
-	(*philo) = malloc(sizeof(t_philo *) * (data->n_philo + 1));
+	gettimeofday(&time, NULL);
+	data->info->starting_time = time.tv_sec * 1000 + (time.tv_usec / 1000);
 	i = -1;
-	while (++i < data->n_philo)
+	while (++i < data->info->n_philo)
 	{
-		(*philo)[i] = malloc(sizeof(t_philo));
-		(*philo)[i]->data = data;
-		(*philo)[i]->id = i;
-		pthread_mutex_init(&((*philo)[i]->mut_alive), NULL);
-		(*philo)[i]->alive = 1;
-		if ((*philo)[i]->id > 0)
-			(*philo)[i]->prev = (*philo)[i]->id - 1;
-		else
-			(*philo)[i]->prev = (*philo)[i]->data->n_philo;
+		pthread_create(&(data->philo[i]->thread_id), NULL, philochan, data->philo[i]);
+		pthread_detach(data->philo[i]->thread_id);
+		usleep(10);
 	}
-	gettimeofday(&(data->starting_time), NULL);
-	i = -1;
-	while (++i < data->n_philo)
+}
+
+void	ft_philo_loop(t_data *data)
+{
+	int	i;
+	long	time;
+
+	while (data->info->end == 0)
 	{
-		pthread_create(&((*philo)[i]->thread_id), NULL, philochan, (*philo)[i]);
-		pthread_detach((*philo)[i]->thread_id);
+		i = -1;
+		while (++i < data->info->n_philo)
+		{
+			time = ft_time(data->info);
+			pthread_mutex_lock(&(data->philo[i]->access));
+			if ((time - data->philo[i]->last_eat) > data->info->t_die)
+			{
+				ft_talk(data->philo[i], "died");
+				pthread_mutex_lock(&(data->access_info));
+				data->info->end = 1;
+				pthread_mutex_unlock(&(data->access_info));
+				pthread_mutex_unlock(&(data->philo[i]->access));
+				break ;
+			}
+			pthread_mutex_unlock(&(data->philo[i]->access));
+			usleep(100);
+		}
 	}
+	usleep(1000000);
 }
 
 int	main(int ac, char **av)
 {
 	t_data	*data;
-	t_philo	**philo;
-	int	alive;
-	int	i;
 
 	data = malloc(sizeof(t_data));
-	if (!data || ft_arg_error(ac, av))
+	data->info = malloc(sizeof(t_info));
+	if (!data->info || ft_arg_error(ac, av))
 		return (1);
-	ft_fill_data(&data, ac, av);
-	ft_create_philo(&philo, data);
-
-	alive = 1;
-	while (alive)
-	{
-		i = -1;
-		while (++i < data->n_philo && alive)
-		{
-			pthread_mutex_lock(&(philo[i]->mut_alive));
-			if (philo[i]->alive == 0)
-			{
-				printf("SIMULATION SHOULD STOP HERE\n");
-				alive = 0;
-			}
-			pthread_mutex_unlock(&(philo[i]->mut_alive));
-		}
-		usleep(1000);
-	}
-	while(1);
-	ft_free_data(data, philo);
+	ft_init_info(data, ac, av);
+	ft_init_philo(data);
+	ft_start_philo(data);
+	ft_philo_loop(data);
+	ft_free_info(data);
 	return (0);
 }

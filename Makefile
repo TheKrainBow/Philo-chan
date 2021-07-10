@@ -1,4 +1,8 @@
 SRCS_CORE		=	srcs/main.c								\
+					srcs/manage_time.c						\
+					srcs/task.c								\
+					srcs/init.c								\
+					srcs/free.c								\
 
 INCLUDES		=	-Iincludes								\
 					-Ilibft/includes
@@ -16,7 +20,7 @@ RM				=	@rm -f
 
 LIBFT			=	libft/libft.a
 
-FLAGS			=	-Wall -Werror -Wextra $(INCLUDES) -g -pthread -fsanitize=thread
+FLAGS			=	-Wall -Werror -Wextra $(INCLUDES) -pthread -g -fsanitize=thread
 
 .c.o:
 					@$(CC) -c $< -o $(<:.c=.o) $(FLAGS)
