@@ -1,5 +1,5 @@
 SRCS_CORE		=	srcs/main.c								\
-					srcs/manage_time.c						\
+					srcs/philos.c						\
 					srcs/task.c								\
 					srcs/init.c								\
 					srcs/free.c								\

@@ -6,33 +6,11 @@
 /*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:53:36 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 17:51:16 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/07/11 18:13:15 by mdelwaul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "core.h"
-
-int		ft_task(t_philo *philo, int task)
-{
-	if (task == LEAVE_FORK)
-		ft_leave_fork(philo);
-	pthread_mutex_lock(&(philo->info->mend));
-	if (philo->info->end)
-	{
-		pthread_mutex_unlock(&(philo->info->mend));
-		return (1);
-	}
-	pthread_mutex_unlock(&(philo->info->mend));
-	if (task == TAKE_FORK)
-		ft_take_fork(philo);
-	if (task == EAT)
-		ft_eat(philo);
-	if (task == SLEEP)
-		ft_sleep(philo);
-	if (task == THINK)
-		ft_talk(philo, "is thinking");
-	return (0);
-}
 
 void	ft_talk(t_philo *philo, char *str)
 {

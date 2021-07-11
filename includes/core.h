@@ -6,7 +6,7 @@
 /*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/23 14:04:56 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 17:59:37 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/07/11 18:26:04 by mdelwaul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 # define SLEEP 4
 # define THINK 5
 
-typedef struct		s_info
+typedef struct s_info
 {
 	int				n_philo;
 	int				t_die;
@@ -41,7 +41,7 @@ typedef struct		s_info
 	pthread_t		*philos;
 }					t_info;
 
-typedef struct		s_philo
+typedef struct s_philo
 {
 	int				id;
 	int				prev;
@@ -51,13 +51,15 @@ typedef struct		s_philo
 	t_info			*info;
 }					t_philo;
 
-typedef struct		s_data
+typedef struct s_data
 {
 	t_info			*info;
 	t_philo			*philo;
+	int				end;
 }					t_data;
 
 void	ft_init_philo(t_data **data);
+void	ft_start_philo(t_data *d);
 void	ft_init_info(t_data **data, int ac, char **av);
 
 void	*philochan(void *p);
@@ -72,7 +74,7 @@ void	ft_eat(t_philo *philo);
 void	ft_sleep(t_philo *philo);
 void	ft_talk(t_philo *philo, char *str);
 
-int	ft_atoi(const char *str);
-int	ft_strisint(char *str);
+int		ft_atoi(const char *str);
+int		ft_strisint(char *str);
 
 #endif

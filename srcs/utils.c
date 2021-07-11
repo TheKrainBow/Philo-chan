@@ -6,12 +6,11 @@
 /*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/11 17:57:15 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 17:57:55 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/07/11 18:13:35 by mdelwaul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "core.h"
-
 
 int	ft_strisint(char *str)
 {
@@ -56,4 +55,14 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	return (res * neg);
+}
+
+long	ft_time(t_info *info)
+{
+	struct timeval	current_time;
+	long			dest;
+
+	gettimeofday(&current_time, NULL);
+	dest = (current_time.tv_sec * 1000 + (current_time.tv_usec / 1000));
+	return (dest - info->starting_time);
 }
