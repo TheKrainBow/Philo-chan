@@ -6,7 +6,7 @@
 /*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 18:00:40 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/10 19:11:12 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/07/11 15:50:34 by mdelwaul         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,14 @@ void	ft_free_info(t_data *data)
 	i = -1;
 	while (++i < data->info->n_philo)
 	{
-		pthread_mutex_destroy(&(data->philo[i]->access));
-		free(data->philo[i]);
+		pthread_mutex_destroy(data->info->access + i);
+		pthread_mutex_destroy(data->info->forks + i);
 	}
-	free(data->philo);
-	i = -1;
-	while (++i < data->info->n_philo)
-		pthread_mutex_destroy(&(data->info->forks[i]));
 	pthread_mutex_destroy(&(data->info->speak));
-	pthread_mutex_destroy(&(data->access_info));
+	free(data->philo);
+	free(data->info->access);
+	free(data->info->forks);
+	free(data->info->philos);
 	free(data->info);
+	free(data);
 }
