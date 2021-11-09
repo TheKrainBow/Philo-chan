@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philos.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
+/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:57:08 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 18:13:18 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/11/05 22:47:55 by magostin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,20 @@ void	*philochan(void *p)
 	return (NULL);
 }
 
+void ft_one_philo(t_data *data)
+{
+	printf("0 1 has taken a fork\n");
+	usleep(1000 * data->info->t_die);
+	printf("%d 1 died\n", data->info->t_die);
+	free(data->philo);
+	free(data->info->access);
+	free(data->info->forks);
+	free(data->info->philos);
+	free(data->info);
+	free(data);
+	exit(1);
+}
+
 void	ft_start_philo(t_data *d)
 {
 	int				i;
@@ -46,6 +60,8 @@ void	ft_start_philo(t_data *d)
 
 	gettimeofday(&time, NULL);
 	d->info->starting_time = time.tv_sec * 1000 + (time.tv_usec / 1000);
+	if (d->info->n_philo == 1)
+		ft_one_philo(d);
 	i = -1;
 	while (++i < d->info->n_philo)
 	{

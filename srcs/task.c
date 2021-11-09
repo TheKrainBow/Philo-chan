@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   task.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
+/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:53:36 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 18:13:15 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/11/05 22:25:56 by magostin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	ft_talk(t_philo *philo, char *str)
 	if (!philo->info->end)
 	{
 		pthread_mutex_lock(&(philo->info->speak));
-		printf("%ld %d %s\n", ft_time(philo->info), philo->id, str);
+		printf("%ld %d %s\n", ft_time(philo->info), philo->id + 1, str);
 		pthread_mutex_unlock(&(philo->info->speak));
 	}
 	pthread_mutex_unlock(&(philo->info->mend));

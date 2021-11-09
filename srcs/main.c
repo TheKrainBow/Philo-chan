@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
+/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/02 21:01:23 by magostin          #+#    #+#             */
-/*   Updated: 2021/07/11 18:29:49 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/11/05 22:46:35 by magostin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,21 @@ int	ft_arg_error(int ac, char **av)
 void	ft_wait_death(t_data *d)
 {
 	int	i;
+	int	end;
 
 	pthread_mutex_lock(&(d->info->mend));
 	d->info->end = 1;
 	pthread_mutex_unlock(&(d->info->mend));
-	d->end = 1;
-	while (d->end)
+	end = 1;
+	while (end)
 	{
-		d->end = 0;
+		end = 0;
 		i = -1;
 		while (++i < d->info->n_philo)
 		{
 			pthread_mutex_lock(d->info->access + i);
 			if (d->philo[i].alive == 1)
-				d->end = 1;
+				end = 1;
 			pthread_mutex_unlock(d->info->access + i);
 		}
 	}
@@ -73,6 +74,7 @@ void	ft_philo_loop(t_data *d, t_philo *philo)
 			{
 				ft_talk(philo + i, "died");
 				d->end = 1;
+				d->info->end = 1;
 			}
 			if (d->info->max_eat != -1 && philo[i].eat >= d->info->max_eat)
 				eat++;
