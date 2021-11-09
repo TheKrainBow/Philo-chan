@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: krain <krain@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/02 21:01:23 by magostin          #+#    #+#             */
-/*   Updated: 2021/11/05 22:46:35 by magostin         ###   ########.fr       */
+/*   Updated: 2021/11/09 20:00:47 by krain            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,9 +40,9 @@ void	ft_wait_death(t_data *d)
 	int	i;
 	int	end;
 
-	pthread_mutex_lock(&(d->info->mend));
+	pthread_mutex_lock(&(d->info->mutex_end));
 	d->info->end = 1;
-	pthread_mutex_unlock(&(d->info->mend));
+	pthread_mutex_unlock(&(d->info->mutex_end));
 	end = 1;
 	while (end)
 	{
@@ -50,10 +50,10 @@ void	ft_wait_death(t_data *d)
 		i = -1;
 		while (++i < d->info->n_philo)
 		{
-			pthread_mutex_lock(d->info->access + i);
+			pthread_mutex_lock(&d->philo[i].access);
 			if (d->philo[i].alive == 1)
 				end = 1;
-			pthread_mutex_unlock(d->info->access + i);
+			pthread_mutex_unlock(&d->philo[i].access);
 		}
 	}
 }
@@ -69,19 +69,19 @@ void	ft_philo_loop(t_data *d, t_philo *philo)
 		eat = 0;
 		while (++i < d->info->n_philo)
 		{
-			pthread_mutex_lock(d->info->access + i);
+			pthread_mutex_lock(&philo[i].access);
 			if (d->info->t_die + philo[i].last_eat < ft_time(d->info))
 			{
-				ft_talk(philo + i, "died");
+				ft_talk(philo + i, "died", 0);
 				d->end = 1;
 				d->info->end = 1;
+				pthread_mutex_unlock(&(d->info->speak));
 			}
 			if (d->info->max_eat != -1 && philo[i].eat >= d->info->max_eat)
 				eat++;
-			pthread_mutex_unlock(d->info->access + i);
+			pthread_mutex_unlock(&philo[i].access);
 			if (d->end)
 				break ;
-			usleep(100);
 		}
 		if (eat == d->info->n_philo)
 			break ;
@@ -100,8 +100,8 @@ int	main(int ac, char **av)
 		free(data);
 		return (1);
 	}
-	ft_init_info(&data, ac, av);
-	ft_init_philo(&data);
+	ft_init_info(data, ac, av);
+	ft_init_philo(data);
 	ft_start_philo(data);
 	ft_philo_loop(data, data->philo);
 	ft_wait_death(data);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philos.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: krain <krain@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:57:08 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/11/05 22:47:55 by magostin         ###   ########.fr       */
+/*   Updated: 2021/11/09 20:03:47 by krain            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,9 @@ void	*philochan(void *p)
 		if (ft_task(philo, THINK))
 			break ;
 	}
-	pthread_mutex_lock(philo->info->access + philo->id);
+	pthread_mutex_lock(&philo->access);
 	philo->alive = 0;
-	pthread_mutex_unlock(philo->info->access + philo->id);
+	pthread_mutex_unlock(&philo->access);
 	return (NULL);
 }
 
@@ -45,9 +45,8 @@ void ft_one_philo(t_data *data)
 	usleep(1000 * data->info->t_die);
 	printf("%d 1 died\n", data->info->t_die);
 	free(data->philo);
-	free(data->info->access);
 	free(data->info->forks);
-	free(data->info->philos);
+	free(data->philo_threads);
 	free(data->info);
 	free(data);
 	exit(1);
@@ -65,9 +64,9 @@ void	ft_start_philo(t_data *d)
 	i = -1;
 	while (++i < d->info->n_philo)
 	{
-		pthread_create(&(d->info->philos[i]), NULL, philochan, d->philo + i);
-		pthread_detach(d->info->philos[i]);
-		usleep(10);
+		pthread_create(&(d->philo_threads[i]), NULL, philochan, d->philo + i);
+		usleep(100);
+		pthread_detach(d->philo_threads[i]);
 	}
 }
 
@@ -75,13 +74,13 @@ int	ft_task(t_philo *philo, int task)
 {
 	if (task == LEAVE_FORK)
 		ft_leave_fork(philo);
-	pthread_mutex_lock(&(philo->info->mend));
+	pthread_mutex_lock(&(philo->info->mutex_end));
 	if (philo->info->end)
 	{
-		pthread_mutex_unlock(&(philo->info->mend));
+		pthread_mutex_unlock(&(philo->info->mutex_end));
 		return (1);
 	}
-	pthread_mutex_unlock(&(philo->info->mend));
+	pthread_mutex_unlock(&(philo->info->mutex_end));
 	if (task == TAKE_FORK)
 		ft_take_fork(philo);
 	if (task == EAT)
@@ -89,6 +88,6 @@ int	ft_task(t_philo *philo, int task)
 	if (task == SLEEP)
 		ft_sleep(philo);
 	if (task == THINK)
-		ft_talk(philo, "is thinking");
+		ft_talk(philo, "is thinking", 1);
 	return (0);
 }

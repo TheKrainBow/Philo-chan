@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   core.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdelwaul <mdelwaul@student.42.fr>          +#+  +:+       +#+        */
+/*   By: krain <krain@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/23 14:04:56 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/07/11 18:26:04 by mdelwaul         ###   ########.fr       */
+/*   Updated: 2021/11/09 20:06:10 by krain            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <sys/time.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include "color.h"
 
 # define TAKE_FORK 1
 # define LEAVE_FORK 2
@@ -34,11 +35,9 @@ typedef struct s_info
 	int				max_eat;
 	int				end;
 	long			starting_time;
-	pthread_mutex_t	*access;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	speak;
-	pthread_mutex_t	mend;
-	pthread_t		*philos;
+	pthread_mutex_t	mutex_end;
 }					t_info;
 
 typedef struct s_philo
@@ -49,18 +48,20 @@ typedef struct s_philo
 	long			last_eat;
 	int				alive;
 	t_info			*info;
+	pthread_mutex_t	access;
 }					t_philo;
 
 typedef struct s_data
 {
 	t_info			*info;
 	t_philo			*philo;
+	pthread_t		*philo_threads;
 	int				end;
 }					t_data;
 
-void	ft_init_philo(t_data **data);
-void	ft_start_philo(t_data *d);
-void	ft_init_info(t_data **data, int ac, char **av);
+void	ft_init_philo(t_data *data);
+void	ft_start_philo(t_data *data);
+void	ft_init_info(t_data *data, int ac, char **av);
 
 void	*philochan(void *p);
 
@@ -72,7 +73,7 @@ void	ft_take_fork(t_philo *philo);
 void	ft_leave_fork(t_philo *philo);
 void	ft_eat(t_philo *philo);
 void	ft_sleep(t_philo *philo);
-void	ft_talk(t_philo *philo, char *str);
+void	ft_talk(t_philo *philo, char *str, int unlock);
 
 int		ft_atoi(const char *str);
 int		ft_strisint(char *str);
