@@ -6,7 +6,7 @@
 /*   By: krain <krain@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:57:08 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/11/09 20:03:47 by krain            ###   ########.fr       */
+/*   Updated: 2021/11/13 11:56:01 by krain            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ void	*philochan(void *p)
 			break ;
 		if (ft_task(philo, THINK))
 			break ;
+		usleep(100);
 	}
 	pthread_mutex_lock(&philo->access);
 	philo->alive = 0;
@@ -64,7 +65,7 @@ void	ft_start_philo(t_data *d)
 	i = -1;
 	while (++i < d->info->n_philo)
 	{
-		pthread_create(&(d->philo_threads[i]), NULL, philochan, d->philo + i);
+		pthread_create(d->philo_threads + i, NULL, philochan, d->philo + i);
 		usleep(100);
 		pthread_detach(d->philo_threads[i]);
 	}

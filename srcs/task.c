@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   task.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: krain <krain@student.42.fr>                +#+  +:+       +#+        */
+/*   By: magostin <magostin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/10 16:53:36 by mdelwaul          #+#    #+#             */
-/*   Updated: 2021/11/09 20:10:48 by krain            ###   ########.fr       */
+/*   Updated: 2021/11/11 15:15:08 by magostin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ void	ft_take_fork(t_philo *philo)
 {
 	if (!(philo->id % 2))
 	{
-		usleep(100);
 		pthread_mutex_lock(&(philo->info->forks[philo->id]));
 		ft_talk(philo, "has taken a fork", 1);
 		pthread_mutex_lock(&(philo->info->forks[philo->prev]));
